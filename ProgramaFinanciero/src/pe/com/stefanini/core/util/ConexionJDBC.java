@@ -21,7 +21,7 @@ public class ConexionJDBC {
 		try {
 			context = new InitialContext();
 			 dataSource = (DataSource)
-			 context.lookup("jdbc/APP_PROFIN");//WAS
+			 context.lookup("jjava:/comp/env/jdbc/PROFIN");//WAS
 			/*dataSource = (DataSource) context
 					.lookup("java:/comp/env/jdbc/ORA_Biiwx001");*/
 			con = dataSource.getConnection();

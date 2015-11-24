@@ -128,10 +128,10 @@
 
 	<welcome-file-list>
 <!--		<welcome-file>/pages/login-ldap.jsp</welcome-file>-->
-		<welcome-file>login_ldap_pre.jsp</welcome-file>
+		<welcome-file>/login_ldap_pre.jsp</welcome-file>
 	</welcome-file-list>
 	<error-page> 
 	    <exception-type>java.lang.Throwable</exception-type> 
-	    <location>errorControl.jsp</location> 
+	    <location>/errorControl.jsp</location> 
 	</error-page>
 </web-app>
