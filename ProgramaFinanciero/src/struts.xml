@@ -751,6 +751,18 @@
 		</action>
 		<action name="validarExistFile" class="downloadPDFAction"  method="validarExistFile">
 		</action>
+
+	    
+	      <action name="downloadManual"   class="parametroAction" method="downloadManual">             
+	    	<result name="success" type="stream">
+                <param name="contentType">${contentType3}</param>
+                <param name="inputName">fileInputStream3</param>
+                <param name="contentDisposition">${contentDisposition3}</param>
+                <param name="bufferSize">2097152</param>
+            </result>
+             <result name="panel" type="tiles">panel</result>   
+	    </action>
+	    
 		
     </package>   
   
