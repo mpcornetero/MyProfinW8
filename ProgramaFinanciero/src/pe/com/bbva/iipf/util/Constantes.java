@@ -723,4 +723,6 @@ public interface Constantes {
 	
 	
 	
+	public static final String RUTAMANUALPF = "RUTAMANUALPF";
+	public static final String ACTIVO_REF_DESCARGAMANUAL = "ACTIVO_REF_DESCARGAMANUAL";
 }
