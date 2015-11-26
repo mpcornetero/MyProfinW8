@@ -12,5 +12,5 @@
 <!--</div>-->
 <div>
 BBVA Continental<br/>
-Todos los derechos reservados v7.1
+Todos los derechos reservados v7.2
 </div>
