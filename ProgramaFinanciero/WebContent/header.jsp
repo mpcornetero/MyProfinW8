@@ -2,8 +2,18 @@
 <%@page import="pe.com.bbva.iipf.util.Constantes"%>
 <%@page import="pe.com.stefanini.core.action.GenericAction"%>
 <%@page import="pe.com.stefanini.core.host.UsuarioSesion"%>
-<%UsuarioSesion usuarioSession = (UsuarioSesion)GenericAction.getObjectSession(Constantes.USUARIO_SESSION); %>
+<%
+UsuarioSesion usuarioSession = (UsuarioSesion)GenericAction.getObjectSession(Constantes.USUARIO_SESSION); 
+String activoDescargaManual = (GenericAction.getObjectParamtrosSession(Constantes.ACTIVO_REF_DESCARGAMANUAL)==null?"1":GenericAction.getObjectParamtrosSession(Constantes.ACTIVO_REF_DESCARGAMANUAL).toString());
 
+%>
+
+<script type="text/javascript">
+
+function beforeDescargar(){		
+	try {resetTiempoSession();}	catch(err) {}
+}
+</script>
 
 <table bgcolor="#FFFFFF" width="100%" border="0" cellspacing="0" cellpadding="0">
   <tr>
@@ -15,12 +25,13 @@
   	</td >
   	<td rowspan="2"  valign="middle" width="5%">
   		<div id="home"><a href="<s:url action='home'/>"><img src="imagentabla/bbva.HomeAzul48.png" alt="Ir al Panel" border="0"></a></div>
+
   	</td>
  
   
   </tr>
   
-  <tr>
+  <tr style="text-align: right;">
     <td width="60%" style="color: #0078D2; font-size: 10px; font-family: Verdana, Geneva, sans-serif; text-align: left;">
         &nbsp;Bienvenido:<%=usuarioSession.getNombre()%>&nbsp;&nbsp;   
     	<a href="<s:url action="closeSession"/>" style="text-decoration: none;color: #0078D2; font-size: 10px;font-weight:bold; font-family: Verdana, Geneva, sans-serif; text-align: left;">(Cerrar Sesi&oacute;n)</a>
@@ -38,6 +49,11 @@
 					<div class="barra_rejilla"></div>
 				</div>			
 			</div>
+	    <%if(activoDescargaManual.equals("1")){ %>
+		<a href="<s:url action='downloadManual'/>" onclick="javascript:beforeDescargar();">
+			<img align="center" src="imagentabla/bbva.PdfAzul24.png" alt="Descargar Manual" border="0">PFA-Manual de llenado
+		</a>
+		<%} %>
     </td>
 
   </tr>
