@@ -50,8 +50,8 @@ function beforeDescargar(){
 				</div>			
 			</div>
 	    <%if(activoDescargaManual.equals("1")){ %>
-		<a href="<s:url action='downloadManual'/>" onclick="javascript:beforeDescargar();">
-			<img align="center" src="imagentabla/bbva.PdfAzul24.png" alt="Descargar Manual" border="0">PFA-Manual de llenado
+		<a href="<s:url action='downloadManual'/>" onclick="javascript:beforeDescargar();" style="text-decoration: none;color: #0078D2; font-size: 10px;font-weight:bold; font-family: Verdana, Geneva, sans-serif; text-align: left;">
+			<img align="center" src="imagentabla/bbva.PdfAzul16.png" alt="Descargar Manual" border="0">&nbsp;PFA-Manual de Llenado&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 		</a>
 		<%} %>
     </td>
