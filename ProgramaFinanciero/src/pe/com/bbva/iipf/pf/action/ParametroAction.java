@@ -71,6 +71,11 @@ public class ParametroAction extends GenericAction
 	private InputStream fileInputStream2;
 	
 	
+	private String contentType3;
+	private String contentDisposition3;
+	private InputStream fileInputStream3;
+	
+	
 	public String getId() {
 		return id;
 	}
@@ -356,6 +361,16 @@ public class ParametroAction extends GenericAction
 		return parametros;
 	}
 	
+	private HashMap<String, Object> cargarParametrosRutaManual() throws BOException {
+		HashMap<String, Object> parametros = new HashMap<String, Object>() ;
+		Parametro dir = parametroBO.findByNombreParametro(Constantes.RUTAMANUALPF);
+		if(dir==null || dir.getValor().length()==0){
+			throw new BOException("No se encontró el parámetro que indica el directorio del manual de pf");
+		}
+		parametros.put("RUTAMANUALPF",dir.getValor());
+		return parametros;
+	}
+	
 	
 	public String descargarLogpf() throws BOException, DAOException {
 		
@@ -471,6 +486,32 @@ public class ParametroAction extends GenericAction
 			}
 			return forward;
 		} 
+		
+		 public String downloadManual() throws Exception { 	
+				logger.info("INICIO download Manual");
+						
+				String nombreDocumento="PFA-Manual de llenado v3.0.pdf";
+				String ruta="";					
+				File file=null;
+				String forward = SUCCESS;
+				try {
+					HashMap<String, Object> parametros = cargarParametrosRutaManual();
+					ruta = (String) parametros.get("RUTAMANUALPF");					
+					
+					String pathToFile=ruta;
+					String fileName=nombreDocumento; 
+					file = new File(pathToFile);
+				   	setContentType3(new MimetypesFileTypeMap().getContentType(file));
+				   	setContentDisposition3("attachment;filename=\""+ fileName + "\"");
+					fileInputStream3 =  new FileInputStream(file);
+				}catch (Exception e) {
+					addActionError(e.getMessage());
+					logger.error(StringUtil.getStackTrace(e));
+					forward = "panel";
+				}
+				
+				return forward;
+		}
 
 	public File getArchivo() {
 		return archivo;
@@ -597,6 +638,30 @@ public class ParametroAction extends GenericAction
 
 	public void setRutaMnt(String rutaMnt) {
 		this.rutaMnt = rutaMnt;
+	}
+
+	public String getContentType3() {
+		return contentType3;
+	}
+
+	public void setContentType3(String contentType3) {
+		this.contentType3 = contentType3;
+	}
+
+	public String getContentDisposition3() {
+		return contentDisposition3;
+	}
+
+	public void setContentDisposition3(String contentDisposition3) {
+		this.contentDisposition3 = contentDisposition3;
+	}
+
+	public InputStream getFileInputStream3() {
+		return fileInputStream3;
+	}
+
+	public void setFileInputStream3(InputStream fileInputStream3) {
+		this.fileInputStream3 = fileInputStream3;
 	}
 
 
