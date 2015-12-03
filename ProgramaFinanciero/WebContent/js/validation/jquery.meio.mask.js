@@ -177,8 +177,8 @@
                     mask: '29:59'
                 },
                 'cc': {
-                    mask: '9999 9999 9999 9999'
-                }, // credit card
+                    mask: '9999-9999-9999999999'
+                }, // cuenta corriente
                 'integer': {
                     mask: '999.999.999.999',
                     type: 'reverse'
