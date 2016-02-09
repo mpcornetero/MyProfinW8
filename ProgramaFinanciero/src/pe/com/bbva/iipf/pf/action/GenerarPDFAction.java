@@ -99,8 +99,7 @@ import pe.com.bbva.iipf.pf.model.Tcaratula;
 import pe.com.bbva.iipf.pf.model.Tempresa;
 import pe.com.bbva.iipf.pf.model.TsubCaratula;
 import pe.com.bbva.iipf.pf.model.Tvariable;
-import pe.com.bbva.iipf.threads.AdminColaHilos;
-import pe.com.bbva.iipf.threads.HiloProceso;
+
 import pe.com.bbva.iipf.util.Constantes;
 import pe.com.bbva.iipf.util.FormatHTMLUtil;
 import pe.com.bbva.iipf.util.GeneraTableHtml;
@@ -111,6 +110,12 @@ import pe.com.stefanini.core.util.FormatUtil;
 import pe.com.stefanini.core.util.StringUtil;
 
 import com.grupobbva.bc.per.tele.ldap.directorio.IILDPeUsuario;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.PdfStamper;
+import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 
 
 
@@ -1196,7 +1201,8 @@ public class GenerarPDFAction extends GenericAction {
 	      }
 
 	      logger.error("ini LecturaPDF");
-        lecturaPDF(rutaPDF,rutaPDF_Pre,btipoGrupo,listaIndiceCaratula);  
+        //lecturaPDF(rutaPDF,rutaPDF_Pre,btipoGrupo,listaIndiceCaratula);      
+        lecturaPDF_Itext(rutaPDF,rutaPDF_Pre,btipoGrupo,listaIndiceCaratula); 
          logger.error("fin LecturaPDF");
             
         } catch (Exception e) {
@@ -8707,20 +8713,20 @@ public String ExtractoSituacionFinancieroBD(String strruta) {
     	OutputStream oss=null;
     	PDDocument pd=null;
               try { 
-            	   oss = new FileOutputStream(ruta);
-            	  logger.info("inicia PDDocument");
-                   pd = PDDocument.load(ruta_Pre); //CARGAR EL PDF
-                  logger.info("fin PDDocument");
-                  List allPages = pd.getDocumentCatalog().getAllPages();//NUMERO LAS PAGINAS DEL ARCHIVO
-                  //Object[] obj = allPages.toArray();//METO EN UN OBJETO LA LISTA DE PAGINAS PARA MANIPULARLA
-                  logger.info("paso object");
-                  numeroPagina=allPages.size();
+           	   oss = new FileOutputStream(ruta);
+           	  logger.info("inicia PDDocument");
+                  pd = PDDocument.load(ruta_Pre); //CARGAR EL PDF
+                 logger.info("fin PDDocument");
+                 List allPages = pd.getDocumentCatalog().getAllPages();//NUMERO LAS PAGINAS DEL ARCHIVO
+                 //Object[] obj = allPages.toArray();//METO EN UN OBJETO LA LISTA DE PAGINAS PARA MANIPULARLA
+                 logger.info("paso object");
+                 numeroPagina=allPages.size();
 
-                  PDFont font = PDType1Font.HELVETICA;
-                  float fontSize = 6.0f;
-                  
-                  for (int y=0;y<allPages.size();y++){
-                	  logger.info("entro for");
+                 PDFont font = PDType1Font.HELVETICA;
+                 float fontSize = 6.0f;
+                 
+                 for (int y=0;y<allPages.size();y++){
+               	  logger.info("entro for");
 	                  PDPage page = (PDPage) allPages.get(y);//PAGE ES LA PAGINA 1 DE LA QUE CONSTA EL ARCHIVO
 	                  logger.info("asigno page");
 	                  int width = 792;//ANCHO
@@ -8920,6 +8926,175 @@ public String ExtractoSituacionFinancieroBD(String strruta) {
     }
     
 
+    
+    //ini MCG20151228
+       
+    public void lecturaPDF_Itext(String ruta,String ruta_Pre,boolean btipoGrupo,List<Tcaratula> listaIndiceCaratula){   	
+    	
+    	int numeroPagina=0;
+    	OutputStream oss=null;
+    
+              try { 
+            	   oss = new FileOutputStream(ruta);
+            	   
+                   PdfReader pdfReader = new PdfReader(ruta_Pre);
+                   PdfStamper pdfStamper = new PdfStamper(pdfReader,oss); 
+                 
+                  numeroPagina = pdfReader.getNumberOfPages();
+                  BaseFont bf = BaseFont.createFont(BaseFont.HELVETICA,BaseFont.WINANSI, BaseFont.EMBEDDED);
+                  float fontSize = 6.0f;
+                  for(int y=1; y<= numeroPagina; y++){
+                	  
+                	  
+                	  logger.info("entro for: "+y);    	                  
+                	  //extraemos el contenido de la pagina
+					  String contenido = PdfTextExtractor.getTextFromPage(pdfReader, y);
+					  logger.info("obtiene contenido de pdf "+y+"::" +contenido);  
+					  
+                      //put content over
+                      PdfContentByte content = pdfStamper.getOverContent(y);                    
+                      content.beginText();
+                      content.setFontAndSize(bf, fontSize);
+                      content.showTextAligned(PdfContentByte.ALIGN_LEFT,"Página "+(y)+" de "+ (numeroPagina),536,5,0);
+                      content.endText(); 
+	                  if (y>2){
+	                	  int pag=0;
+	                		  pag=y;
+	                		  logger.info("ini buscarCodificacionPagina ");
+	                		  buscarCodificacion(pag, contenido,listaIndiceCaratula);
+	                		  logger.info("fin buscarCodificacionPagina ");
+	                  } 	                  
+                  }//for 
+                  
+                  PdfContentByte content2 = pdfStamper.getOverContent(2);
+                  content2.beginText();
+                  content2.setFontAndSize(bf, fontSize);
+                
+                  float posicionY=0;
+                  posicionY=735;
+                  
+                  content2.setTextMatrix(60,posicionY);			                  
+                  content2.showText(""); 
+                  content2.setTextMatrix(495, posicionY);			                  
+                  content2.showText("Página");                   
+                  
+                  if (listaIndiceCaratula!=null && listaIndiceCaratula.size()>0){
+                	  int contLinea=0;
+                	  int contador=2;
+                	  int residuo=0;
+	                  for (Tcaratula ocaratula: listaIndiceCaratula){
+		                  posicionY-=15;//25;//660	                  
+		                  
+		                  contLinea+=1;
+		                  residuo=contLinea%47;
+		                  if(residuo==0){
+		                	  contador+=1;
+		                	  content2.endText();		                    
+		                      content2 = pdfStamper.getOverContent(contador);	                     
+		                      content2.beginText();
+		                      content2.setFontAndSize(bf, fontSize); 
+		                      posicionY=735;
+		                  }
+		                  
+		                  content2.setTextMatrix(60,posicionY);			                  
+		                  content2.showText(ocaratula.getTitulo());
+		                  
+		                 
+		                  if (!ocaratula.getIndice().equals(Constantes.IDENTIFICADOR_ARCHIVO_ANEXO)){		                  
+			                  String opagina=ocaratula.getPagina()==null?"":ocaratula.getPagina();
+			                  
+			                  content2.setTextMatrix(500, posicionY);			                  
+			                  content2.showText(opagina);	
+			                  logger.info(ocaratula.getTitulo()+":::"+opagina);	
+	                  	  }
+ 
+		                  if (ocaratula.getIndice().equals(Constantes.IDENTIFICADOR_INFORM_X_EMPRESA)){		                	  
+		                	 if (ocaratula.getListSubCaratula()!=null && ocaratula.getListSubCaratula().size()>0){ 
+			                	  for (TsubCaratula  osubcaratula:ocaratula.getListSubCaratula()){
+			                		  
+			                		  posicionY-=15;//25;
+			                		  contLinea+=1;
+					                  residuo=contLinea%47;
+					                  if(residuo==0){
+					                	  contador+=1;
+					                      content2.endText();					                      
+					                      content2 = pdfStamper.getOverContent(contador);
+					                      content2.beginText(); 
+					                      content2.setFontAndSize(bf, fontSize);
+					                      posicionY=735;
+					                  }
+					                  String subpagina=osubcaratula.getPagina()==null?"":osubcaratula.getPagina();					                  
+					                  content2.setTextMatrix(70,posicionY);			                  
+					                  content2.showText(osubcaratula.getTituloSubcaratula());
+					                  content2.setTextMatrix(500,posicionY);			                  
+					                  content2.showText(subpagina);
+					                 
+					                  logger.info(osubcaratula.getTituloSubcaratula()+":::"+subpagina);
+			                	  }
+		                	 }		                	  
+		                  }else if (ocaratula.getIndice().equals(Constantes.IDENTIFICADOR_ARCHIVO_ANEXO)){		                	  
+			                	 if (ocaratula.getListSubCaratula()!=null && ocaratula.getListSubCaratula().size()>0){ 
+				                	  for (TsubCaratula  osubcaratula:ocaratula.getListSubCaratula()){
+				                		  
+				                		  posicionY-=15;//25;
+				                		  contLinea+=1;
+						                  residuo=contLinea%47;
+						                  if(residuo==0){
+						                	  contador+=1;
+						                      content2.endText(); 						                      
+						                      content2 = pdfStamper.getOverContent(contador);
+						                      content2.beginText(); 
+						                      content2.setFontAndSize(bf, fontSize);
+						                      
+						                      posicionY=735;	
+
+						                  }
+						                  content2.setTextMatrix(70,posicionY);			                  
+						                  content2.showText(osubcaratula.getTituloSubcaratula());
+						                 
+						                  logger.info(osubcaratula.getTituloSubcaratula());
+				                	  }
+			                	 }		                	  
+			              }
+	                  }
+                  }
+                  content2.endText();
+                  
+                  //fin contenido indice
+                  logger.info("fin  allPages.get(1) ");              
+
+                  pdfStamper.close();
+                  logger.info("paso close pdfStamper ");
+                  oss.close();
+                  logger.info("paso ossclose ");
+     
+                  //ini mil2014
+    
+              } catch (IOException e) {            	  
+                  e.printStackTrace();                  
+                  logger.error("Error 1 PDDocument: " + e.getMessage());
+              }catch (DocumentException e1) {            	  
+                  e1.printStackTrace();                  
+                  logger.error("Error 2 PDDocument: " + e1.getMessage());
+              }catch (Exception e2) {            	  
+                  e2.printStackTrace();                  
+                  logger.error("Error 2 PDDocument: " + e2.getMessage());
+              }finally {  
+  
+                  try {
+                      if (oss != null){
+                    	  oss.close();
+                      }                   
+
+                  } catch (IOException ioe) {
+                  	logger.error("Error lecturaPDF IO: "+ ioe.getMessage());
+                      ioe.printStackTrace();
+                      
+                  }
+              }
+    }
+    
+    //fin MCG20151228
     
     private void buscarCodificacion(int pagina,String contenido,List<Tcaratula> olistaIndiceCaratula){
     	if (olistaIndiceCaratula!=null && olistaIndiceCaratula.size()>0){
